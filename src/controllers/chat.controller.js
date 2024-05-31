@@ -47,7 +47,7 @@ export default class ChatController {
 
             }
             if (username) {
-                const toUser = await User.findOne({ username }, { password: 0 });
+                const toUser = await User.findOne({ username });
                 if (!toUser) throw new NotFoundError('User');
 
                 chat.admins.push(toUser.id);
@@ -266,7 +266,7 @@ export default class ChatController {
             if (!chat.isGroup) throw new BadRequestError('Chat is not a group chat');
 
             if (!chat.admins.includes(user.id)) throw new UnauthorizedError('You are not an admin of the chat');
-            const toAdd = await User.findOne({ username }, { password: 0 });
+            const toAdd = await User.findOne({ username });
             if (!toAdd) throw new NotFoundError('User');
 
             // if (chat.participants.includes(toAdd.id)) throw new BadRequestError('User already in chat');
@@ -318,7 +318,7 @@ export default class ChatController {
 
             if (!chat.participants.includes(user.id)) throw new UnauthorizedError('You are not in this chat');
 
-            const participants = await User.find({ _id: chat.participants }, { password: 0 });
+            const participants = await User.find({ _id: chat.participants });
 
             return res.json({ participants });
 

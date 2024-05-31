@@ -29,7 +29,7 @@ export const postUpdateSchema = Joi.object({
 
 // Comment validation schemas
 export const commentCreateSchema = Joi.object({
-    text: Joi.string().required(),
+    text: Joi.string().min(1).required(),
     reply: Joi.boolean().default(false).optional(),
     postId: Joi.string().optional(),
 });

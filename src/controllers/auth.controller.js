@@ -30,7 +30,7 @@ export default class AuthController {
 
             const hashedPassword = generateHash(password);
 
-            const user = await User.findOne({ username, password: hashedPassword }, { password: 0 });
+            const user = await User.findOne({ username, password: hashedPassword });
             if (!user) throw new UnauthorizedError('Invalid credentials');
 
             const token = generateToken(user.id);
@@ -125,7 +125,7 @@ export default class AuthController {
         try {
             const user = req.user;
 
-            const followers = await User.find({ _id: user.followers }, { password: 0 });
+            const followers = await User.find({ _id: user.followers });
 
             return res.json({ followers });
         } catch (err) {
@@ -148,7 +148,7 @@ export default class AuthController {
         try {
             const user = req.user;
 
-            const following = await User.find({ _id: user.following }, { password: 0 });
+            const following = await User.find({ _id: user.following });
 
             return res.json({ following });
         } catch (err) {

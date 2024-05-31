@@ -34,5 +34,23 @@ export const commentSchema = new mongoose.Schema({
   }],
 }, { timestamps: true, id: true });
 
+// Pre populating the author field
+commentSchema.pre(new RegExp('find*'), function (next) {
+  if (this.options._recursed) {
+    return next();
+  }
+  this.populate({
+    path: 'author',
+    options: {
+      _recursed: true
+    }
+  });
+  next();
+});
+
+commentSchema.post('save', function (next) {
+  this.populate('author');
+});
+
 const Comment = mongoose.model('Comment', commentSchema);
 export default Comment;

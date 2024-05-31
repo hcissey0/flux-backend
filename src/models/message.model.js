@@ -22,5 +22,23 @@ export const messageSchema = new mongoose.Schema({
   },
 }, { timestamps: true, id: true });
 
+// Pre-populating the author field
+messageSchema.pre(new RegExp('find*'), function (next) {
+  if (this.options._recursed) {
+    return next();
+  }
+  this.populate({
+    path: 'author',
+    options: {
+      _recursed: true
+    }
+  });
+  next();
+});
+
+messageSchema.post('save', function (next) {
+  this.populate('author');
+})
+
 const Message = mongoose.model('Message', messageSchema);
 export default Message;

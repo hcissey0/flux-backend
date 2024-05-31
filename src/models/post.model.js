@@ -29,5 +29,24 @@ export const postSchema = new mongoose.Schema({
   }],
 }, { timestamps: true, id: true });
 
+// Pre-populating the author and comments field
+postSchema.pre(new RegExp('find*'), function (next) {
+  if (this.options._recursed) {
+    return next();
+  }
+  this.populate({
+    path: 'author',
+    options: {
+      _recursed: true
+    }
+  });
+  next();
+});
+
+postSchema.post('save', function () {
+  this.populate('author');
+});
+
+
 const Post = mongoose.model('Post', postSchema);
 export default Post;

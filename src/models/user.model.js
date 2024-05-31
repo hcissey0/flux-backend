@@ -19,6 +19,7 @@ export const userSchema = new mongoose.Schema({
   password: {
     type: String,
     required: true,
+    select: false,
   },
   posts: [{
     type: mongoose.Schema.Types.ObjectId,

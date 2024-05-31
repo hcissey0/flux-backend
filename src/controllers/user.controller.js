@@ -31,7 +31,7 @@ export default class UserController {
                 email
             } = req.body;
 
-            const userAvail = await User.findOne({ username }, { password: 0 });
+            const userAvail = await User.findOne({ username });
             if (userAvail) throw new BadRequestError('User already available');
 
             const hashedPassword = generateHash(password);
@@ -67,7 +67,7 @@ export default class UserController {
      */
     static async getAllUsers(req, res, next) {
         try {
-            const users = await User.find({}, { password: 0 });
+            const users = await User.find({});
 
             return res.json({ users })
         } catch (err) {
@@ -90,7 +90,7 @@ export default class UserController {
         try {
             const { userId } = req.params;
 
-            const user = await User.findOne({ _id: userId }, { password: 0 });
+            const user = await User.findOne({ _id: userId });
             if (!user) throw new NotFoundError('User');
 
             return res.json({ user });
@@ -117,7 +117,7 @@ export default class UserController {
             const user = await User.findOneAndUpdate(
                 { _id: userId },
                 update,
-                { returnDocument: 'after', projection: { password: 0 } }
+                { returnDocument: 'after'}
             );
 
             if (!user) throw new NotFoundError('User');
@@ -143,7 +143,7 @@ export default class UserController {
         try {
             const { userId } = req.params;
 
-            const user = await User.findOneAndDelete({ _id: userId }, { password: 0 });
+            const user = await User.findOneAndDelete({ _id: userId });
             if (!user) throw new NotFoundError('User')
 
             return res.json({});
@@ -169,12 +169,12 @@ export default class UserController {
             const { userId } = req.params;
             if (cUser.id === userId) throw new BadRequestError('You cannot follow yourself')
 
-            const user = await User.findOne({ _id: userId }, { password: 0 });
+            const user = await User.findOne({ _id: userId });
             if (!user) throw new NotFoundError('User');
 
             const currentUser = req.user;
             let followed = false;
-
+            
             if (!user.followers.includes(currentUser.id)) {
                 user.followers.push(currentUser.id);
                 currentUser.following.push(user.id);
@@ -208,10 +208,10 @@ export default class UserController {
         try {
             const { userId } = req.params;
 
-            const user = await User.findOne({ _id: userId }, { password: 0 });
+            const user = await User.findOne({ _id: userId });
             if (!user) throw new NotFoundError('User');
 
-            const posts = await Post.find({ _id: user.posts });
+            const posts = user.posts;
 
             return res.json({ posts });
         } catch (err) {
@@ -234,10 +234,10 @@ export default class UserController {
         try {
             const { userId } = req.params;
 
-            const user = await User.findOne({ _id: userId }, { password: 0 });
+            const user = await User.findOne({ _id: userId });
             if (!user) throw new NotFoundError('User');
 
-            const followers = await User.find({ _id: user.followers }, { password: 0 });
+            const followers = user.followers;
 
             return res.json({ followers });
 
@@ -261,10 +261,10 @@ export default class UserController {
         try {
             const { userId } = req.params;
 
-            const user = await User.findOne({ _id: userId }, { password: 0 });
+            const user = await User.findOne({ _id: userId });
             if (!user) throw new NotFoundError('User');
 
-            const following = await User.find({ _id: user.following }, { password: 0 });
+            const following = user.following;
 
             return res.json({ following });
 

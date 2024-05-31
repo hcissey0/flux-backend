@@ -196,10 +196,10 @@ export default class PostController {
     static async getLikes(req, res, next) {
         try {
             const { postId } = req.params;
-            const post = await Post.findOne({ _id: postId });
+            const post = await Post.findOne({ _id: postId }).populate('likes');
             if (!post) throw new NotFoundError('Post');
 
-            const likes = await User.find({ _id: post.likes }, { password: 0 });
+            const likes = post.likes;
 
             return res.json({ likes });
         } catch (err) {
@@ -224,7 +224,7 @@ export default class PostController {
             const user = req.user;
 
             const { postId } = req.params;
-            const post = await Post.findOne({ _id: postId });
+            const post = await Post.findOne({ _id: postId }).populate('author');
             if (!post) throw new NotFoundError('Post');
 
             let saved = false;
@@ -261,10 +261,10 @@ export default class PostController {
         try {
             const { postId }  = req.params;
 
-            const post = await Post.findOne({ _id: postId });
+            const post = await Post.findOne({ _id: postId }).populate('saves');
             if (!post) throw new NotFoundError('Post');
 
-            const saves = await User.find({ _id: post.saves }, { password: 0 });
+            const saves = post.saves;
 
             return res.json({ saves });
 
@@ -297,10 +297,10 @@ export default class PostController {
             comment.author = user;
             comment.text = text;
             comment.post = post;
-            comment.reply = reply;
+            comment.reply = reply || false;
 
-            user.comments.push(comment.id);
-            post.comments.push(comment.id);
+            post.comments.push(comment);
+            user.comments.push(comment);
 
             comment.save();
             post.save();
@@ -328,10 +328,10 @@ export default class PostController {
         try {
             const { postId } = req.params;
 
-            const post = await Post.findOne({ _id: postId });
+            const post = await Post.findOne({ _id: postId }).populate('comments');
             if (!post) throw new NotFoundError('Post');
 
-            const comments = await Comment.find({ _id: post.comments });
+            const comments = post.comments;
 
             return res.json({ comments });
         } catch (err) {

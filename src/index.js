@@ -1,5 +1,6 @@
 import db from './utils/db';
 import express from 'express';
+import cors from 'cors';
 import userRouter from './routes/user.routes';
 import chatRouter from './routes/chat.routes';
 import messageRouter from './routes/message.routes';
@@ -10,6 +11,8 @@ import authRouter from './routes/auth.routes';
 
 const app = express();
 app.use(express.json());
+
+app.use(cors());
 
 app.get('/api/status', (req, res) => {
     res.json({ status: 'OK' });

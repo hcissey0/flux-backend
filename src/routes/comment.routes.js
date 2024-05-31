@@ -6,11 +6,11 @@ import { authenticate } from "../middlewares/authentication/auth.middlwares";
 
 const commentRouter = Router();
 
-commentRouter.post('/', authenticate, validate(commentCreateSchema), CommentController.createComment);
+// commentRouter.post('/', authenticate, validate(commentCreateSchema), CommentController.createComment);
 
 commentRouter.get('/', authenticate, CommentController.getAllComments);
 
-commentRouter.get('/:commentId', authenticate, CommentController.getComment);
+// commentRouter.get('/:commentId', authenticate, CommentController.getComment);
 
 commentRouter.put('/:commentId', authenticate, validate(commentUpdateSchema), CommentController.updateComment);
 
@@ -20,7 +20,7 @@ commentRouter.post('/:commentId/likes', authenticate, CommentController.likeComm
 
 commentRouter.get('/:commentId/likes', authenticate, CommentController.getLikes);
 
-commentRouter.post('/:commentId/replies', authenticate, CommentController.replyToComment);
+commentRouter.post('/:commentId/replies', authenticate, validate(commentCreateSchema), CommentController.replyToComment);
 
 commentRouter.get('/:commentId/replies', authenticate, CommentController.getReplies);
 

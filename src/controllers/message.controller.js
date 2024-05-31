@@ -32,7 +32,7 @@ export default class MessageController {
             const { text } = req.body;
             if (!text) return res.status(400).json({error:'message text not found'});
 
-            const user = await User.findOne({ _id: userid }, { password: 0 });
+            const user = await User.findOne({ _id: userid });
             if (!user) return res.status(404).json({error:'user not found'});
             const chat = await Chat.findOne({ _id: chatid });
             if (!chat) return res.status(404).json({error:'chat not found'});

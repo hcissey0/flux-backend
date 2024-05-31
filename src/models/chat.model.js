@@ -1,5 +1,4 @@
 import mongoose from "mongoose";
-import { v4 as uuidv4 } from "uuid";
 
 export const chatSchema = new mongoose.Schema({
     name: {
@@ -28,6 +27,25 @@ export const chatSchema = new mongoose.Schema({
         ref: 'Message',
     }
 }, { timestamps: true, id: true });
+
+
+// Pre-populating the admins, participants, messages and lastMessage field
+chatSchema.pre(new RegExp('find*'), function (next) {
+    if (this.options._recursed) {
+        return next();
+      }
+      this.populate({
+        path: 'admins',
+        options: {
+          _recursed: true
+        }
+      });
+      next();
+});
+
+chatSchema.post('save', function () {
+    this.populate('admins')
+})
 
 const Chat = mongoose.model('Chat', chatSchema);
 export default Chat;

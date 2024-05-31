@@ -64,7 +64,7 @@ export default class CommentController {
      */
     static async getAllComments(req, res, next) {
         try {
-            const comments = await Comment.find();
+            const comments = await Comment.find().populate('author');
             return res.json({ comments });
 
         } catch (err) {
@@ -87,7 +87,7 @@ export default class CommentController {
         try {
             const { commentId } = req.params;
 
-            const comment = await Comment.findOne({ _id: commentId });
+            const comment = await Comment.findOne({ _id: commentId }).populate('author');
             if (!comment) throw new NotFoundError('Comment');
 
             res.json({ comment });
@@ -119,7 +119,7 @@ export default class CommentController {
                 { _id: commentId },
                 update,
                 { returnDocument: 'after' }
-            );
+            ).populate('author');
             if (!comment) throw new NotFoundError('Comment');
 
             return res.json({ comment });
@@ -144,7 +144,7 @@ export default class CommentController {
         try {
             const { commentId } = req.params;
 
-            const comment = await Comment.findOneAndDelete({ _id: commentId });
+            const comment = await Comment.findOneAndDelete({ _id: commentId }).populate('author');
 
             if (!comment) throw new NotFoundError('Comment');
 
@@ -207,10 +207,10 @@ export default class CommentController {
         try {
             const { commentId } = req.params;
 
-            const comment = await Comment.findOne({ _id: commentId });
+            const comment = await Comment.findOne({ _id: commentId }).populate('likes');
             if (!comment) throw new NotFoundError('Comment');
 
-            const likes = await User.find({ _id: comment.likes }, { password: 0 });
+            const likes = comment.likes;
             return res.json({ likes });
 
         } catch (err) {
@@ -251,7 +251,7 @@ export default class CommentController {
             comment.save();
             user.save();
 
-            return res.status(201).json({ reply });
+            return res.status(201).json({ replied: true, reply });
 
         } catch (err) {
             console.error(err);
@@ -273,10 +273,10 @@ export default class CommentController {
         try {
             const { commentId } = req.params;
 
-            const comment = await Comment.findOne({ _id: commentId });
+            const comment = await Comment.findOne({ _id: commentId }).populate('replies');
             if (!comment) throw new NotFoundError('Comment');
 
-            const replies = await Comment.find({ _id: comment.replies });
+            const replies = comment.replies;
             return res.json({ replies });
 
         } catch (err) {

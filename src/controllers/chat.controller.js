@@ -26,7 +26,7 @@ export default class ChatController {
      */
     static async createChat(req, res, next) {
         try {
-            const { name, isGroup, username } = req.body;
+            const { name, isGroup, participantIds } = req.body;
 
             const user = req.user;
 
@@ -42,27 +42,32 @@ export default class ChatController {
                 chat.name = name;
 
             } else {
-                if (!username) throw new ValidationError('"username" required for single chat');
-                if (username === user.username) throw new BadRequestError('Cannot create a chat with yourself');
+                if (participantIds.length === 0) throw new ValidationError('A participant is required for single chat');
+                if (participantIds.includes(user.id)) throw new BadRequestError('Cannot create a chat with yourself');
 
             }
-            if (username) {
-                const toUser = await User.findOne({ username });
-                if (!toUser) throw new NotFoundError('User');
+            if (participantIds) {
+                const participants = await User.find({ _id: participantIds });
+                if (!participants) throw new NotFoundError('Users');
 
-                chat.admins.push(toUser.id);
-                chat.participants.push(toUser.id);
 
-                toUser.chats.push(chat.id);
-                toUser.save()
-                chat.name = (isGroup) ? (name) : ((toUser.firstName) ? (toUser.firstName) : (toUser.username));
+
+                participants.forEach((part) => {
+                    if (!isGroup) {
+                        chat.admins.push(part.id);
+                    }
+                    chat.participants.push(part.id);
+                    part.chats.push(chat.id);
+                    part.save();
+                });
+                chat.name = (isGroup) ? (name) : ((participants[0].firstName) ? (participants[0].firstName) : (participants[0].username));
 
             }
 
             chat.save();
             user.save();
 
-            return res.json({ chat });
+            return res.status(201).json({ chat });
 
         } catch (err) {
             console.error(err);

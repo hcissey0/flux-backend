@@ -58,7 +58,7 @@ export default class PostController {
      */
     static async getAllPosts(req, res, next) {
         try {
-            const posts = await Post.find();
+            const posts = await Post.find().sort({ createdAt: -1});
             return res.json({ posts });
         } catch (err) {
             console.error(err);
@@ -299,8 +299,8 @@ export default class PostController {
             comment.post = post;
             comment.reply = reply || false;
 
-            post.comments.push(comment);
-            user.comments.push(comment);
+            post.comments.push(comment.id);
+            user.comments.push(comment.id);
 
             comment.save();
             post.save();

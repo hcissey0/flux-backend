@@ -40,9 +40,9 @@ export const commentUpdateSchema = Joi.object({
 
 // Chat validation schemas
 export const chatCreateSchema = Joi.object({
-    name: Joi.string().min(2).optional(),
+    name: Joi.string().optional().allow('', null),
     isGroup: Joi.boolean().required(),
-    username: Joi.string().optional(),
+    participantIds: Joi.array().min(1).required(),
 });
 
 export const chatUpdateSchema = Joi.object({

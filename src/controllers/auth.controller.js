@@ -102,7 +102,7 @@ export default class AuthController {
         try {
             const user = req.user;
 
-            const chats = await Chat.find({ _id: user.chats });
+            const chats = await Chat.find({ participants: user.id }).populate('participants');
 
             return res.json({ chats });
         } catch (err) {

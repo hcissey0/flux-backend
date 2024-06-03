@@ -26,6 +26,7 @@ export default class ChatController {
      */
     static async createChat(req, res, next) {
         try {
+            console.log('reached here')
             const { name, isGroup, participantIds } = req.body;
 
             const user = req.user;
@@ -44,9 +45,9 @@ export default class ChatController {
             } else {
                 if (participantIds.length === 0) throw new ValidationError('A participant is required for single chat');
                 if (participantIds.includes(user.id)) throw new BadRequestError('Cannot create a chat with yourself');
-
+                chat.name = '';
             }
-            if (participantIds) {
+            if (participantIds.length) {
                 const participants = await User.find({ _id: participantIds });
                 if (!participants) throw new NotFoundError('Users');
 
@@ -59,8 +60,8 @@ export default class ChatController {
                     chat.participants.push(part.id);
                     part.chats.push(chat.id);
                     part.save();
+                    console.log('part added')
                 });
-                chat.name = (isGroup) ? (name) : ((participants[0].firstName) ? (participants[0].firstName) : (participants[0].username));
 
             }
 

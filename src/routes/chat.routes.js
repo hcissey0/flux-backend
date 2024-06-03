@@ -8,9 +8,9 @@ const chatRouter = Router();
 
 chatRouter.post('/', authenticate, validate(chatCreateSchema), ChatController.createChat);
 
-chatRouter.get('/', authenticate, ChatController.getAllChats);
+// chatRouter.get('/', authenticate, ChatController.getAllChats);
 
-chatRouter.get('/:chatId', authenticate, ChatController.getChat);
+// chatRouter.get('/:chatId', authenticate, ChatController.getChat);
 
 chatRouter.put('/:chatId', authenticate, validate(chatUpdateSchema), ChatController.updateChat);
 

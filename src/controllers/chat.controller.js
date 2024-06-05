@@ -207,7 +207,6 @@ export default class ChatController {
             message.text = text;
 
             chat.messages.push(message.id);
-            user.messages.push(message.id);
 
             message.save();
             chat.save();

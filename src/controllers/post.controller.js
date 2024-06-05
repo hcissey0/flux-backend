@@ -166,12 +166,13 @@ export default class PostController {
             const post = await Post.findOne({ _id: postId });
             if (!post) throw new NotFoundError('Post');
 
+            // if user already liked, unlike, otherwise like.
             let liked = false;
             if (!post.likes.includes(user.id)) {
                 post.likes.push(user.id);
                 liked = true;
             } else {
-                post.likes.pop(user.id);
+                post.likes.splice(post.likes.indexOf(user.id), 1);
             }
             post.save();
 
@@ -227,14 +228,15 @@ export default class PostController {
             const post = await Post.findOne({ _id: postId }).populate('author');
             if (!post) throw new NotFoundError('Post');
 
+            // if user already saved, unsave, otherwise save.
             let saved = false;
             if (!user.savedPosts.includes(post.id)) {
                 post.saves.push(user.id);
                 user.savedPosts.push(post.id);
                 saved = true;
             } else {
-                post.saves.pop(user.id);
-                user.savedPosts.pop(post.id);
+                post.saves.splice(post.saves.indexOf(user.id), 1);
+                user.savedPosts.splice(user.savedPosts.indexOf(post.id), 1);
             }
             user.save();
             post.save();

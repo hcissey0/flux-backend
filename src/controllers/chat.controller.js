@@ -26,17 +26,18 @@ export default class ChatController {
      */
     static async createChat(req, res, next) {
         try {
-            console.log('reached here')
+
             const { name, isGroup, participantIds } = req.body;
 
             const user = req.user;
 
             const chat = new Chat();
-            chat.admins.push(user.id);
             chat.isGroup = isGroup;
 
-            user.chats.push(chat.id);
+            chat.admins.push(user.id);
             chat.participants.push(user.id);
+
+            user.chats.push(chat.id);
 
             if (isGroup) {
                 if (!name) throw new ValidationError('"name" required for a group chat');
@@ -45,6 +46,7 @@ export default class ChatController {
             } else {
                 if (participantIds.length === 0) throw new ValidationError('A participant is required for single chat');
                 if (participantIds.includes(user.id)) throw new BadRequestError('Cannot create a chat with yourself');
+                if (participantIds.length > 1) throw new ValidationError('Only one participant is required for a single chat')
                 chat.name = '';
             }
             if (participantIds.length) {
@@ -60,15 +62,14 @@ export default class ChatController {
                     chat.participants.push(part.id);
                     part.chats.push(chat.id);
                     part.save();
-                    console.log('part added')
                 });
 
             }
 
-            chat.save();
+            const ret = await (await chat.save()).populate('admins participants');
             user.save();
 
-            return res.status(201).json({ chat });
+            return res.status(201).json({ chat: ret });
 
         } catch (err) {
             console.error(err);
@@ -89,7 +90,7 @@ export default class ChatController {
     static async getAllChats(req, res, next) {
         try {
             const chats = await Chat.find();
-            return res.json({ chats });
+            return res.json({ chats }).populate('participants');
 
         } catch (err) {
             console.error(err);
@@ -206,9 +207,12 @@ export default class ChatController {
             message.text = text;
 
             chat.messages.push(message.id);
+            user.messages.push(message.id);
 
             message.save();
             chat.save();
+
+            user.save();
 
             return res.json({ message });
         } catch (err) {
@@ -283,9 +287,9 @@ export default class ChatController {
                 toAdd.chats.push(chat.id);
                 added = true;
             } else {
-                chat.participants.pop(toAdd.id);
-                chat.admins.pop(toAdd.id);
-                toAdd.chats.pop(chat.id);
+                chat.participants.splice(chat.participants.indexOf(toAdd.id), 1);
+                chat.admins.splice(chat.admins.indexOf(toAdd.id), 1);
+                toAdd.chats.splice(toAdd.chats.indexOf(chat.id), 1);
             }
 
             if (Array.isEmpty(chat.admins) && Array.isEmpty(chat.participants)) {
@@ -319,12 +323,12 @@ export default class ChatController {
 
             const { chatId } = req.params;
 
-            const chat = await Chat.findOne({ _id: chatId });
+            const chat = await Chat.findOne({ _id: chatId }).populate('participants');
             if (!chat) throw new NotFoundError('Chat');
 
-            if (!chat.participants.includes(user.id)) throw new UnauthorizedError('You are not in this chat');
+            if (!chat.participants.find((val) => val.id === user.id)) throw new UnauthorizedError('You are not in this chat');
 
-            const participants = await User.find({ _id: chat.participants });
+            const participants = chat.participants;
 
             return res.json({ participants });
 

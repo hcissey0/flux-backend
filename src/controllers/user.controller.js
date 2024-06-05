@@ -173,15 +173,16 @@ export default class UserController {
             if (!user) throw new NotFoundError('User');
 
             const currentUser = req.user;
+
+            // if user already followed, unfollow, otherwise follow.
             let followed = false;
-            
             if (!user.followers.includes(currentUser.id)) {
                 user.followers.push(currentUser.id);
                 currentUser.following.push(user.id);
                 followed = true;
             } else {
-                user.followers.pop(currentUser.id);
-                currentUser.following.pop(currentUser.id);
+                user.followers.splice(user.followers.indexOf(currentUser.id), 1);
+                currentUser.following.splice(currentUser.following.indexOf(user.id), 1);
             }
             currentUser.save();
             user.save();
@@ -208,7 +209,7 @@ export default class UserController {
         try {
             const { userId } = req.params;
 
-            const user = await User.findOne({ _id: userId });
+            const user = await User.findOne({ _id: userId }).populate('posts');
             if (!user) throw new NotFoundError('User');
 
             const posts = user.posts;
@@ -234,7 +235,7 @@ export default class UserController {
         try {
             const { userId } = req.params;
 
-            const user = await User.findOne({ _id: userId });
+            const user = await User.findOne({ _id: userId }).populate('followers');
             if (!user) throw new NotFoundError('User');
 
             const followers = user.followers;
@@ -261,7 +262,7 @@ export default class UserController {
         try {
             const { userId } = req.params;
 
-            const user = await User.findOne({ _id: userId });
+            const user = await User.findOne({ _id: userId }).populate('following');
             if (!user) throw new NotFoundError('User');
 
             const following = user.following;

@@ -175,12 +175,13 @@ export default class CommentController {
             const comment = await Comment.findOne({ _id: commentId });
             if (!comment) throw new NotFoundError('Comment');
 
+            // if user already liked, unlike, otherwise like.
             let liked = false;
             if (!comment.likes.includes(user.id)) {
                 comment.likes.push(user.id);
                 liked = true;
             } else {
-                comment.likes.pop(user.id);
+                comment.likes.splice(comment.likes.indexOf(user.id), 1);
             }
 
             comment.save();

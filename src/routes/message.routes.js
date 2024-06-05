@@ -6,11 +6,11 @@ import { authenticate } from "../middlewares/authentication/auth.middlwares";
 
 const messageRouter = Router();
 
-messageRouter.post('/', authenticate, validate(messageCreateSchema), MessageController.createMessage);
+// messageRouter.post('/', authenticate, validate(messageCreateSchema), MessageController.createMessage);
 
-messageRouter.get('/', authenticate, MessageController.getAllMessages);
+// messageRouter.get('/', authenticate, MessageController.getAllMessages);
 
-messageRouter.get('/:messageId', authenticate, MessageController.getMessage);
+// messageRouter.get('/:messageId', authenticate, MessageController.getMessage);
 
 messageRouter.put('/:messageId', authenticate, validate(messageUpdateSchema), MessageController.updateMessage);
 

@@ -1,3 +1,5 @@
+import http from 'http';
+import { Server } from 'socket.io';
 import db from './utils/db';
 import express from 'express';
 import cors from 'cors';
@@ -8,8 +10,17 @@ import postRouter from './routes/post.routes';
 import commentRouter from './routes/comment.routes';
 import { apiErrorHandler } from './utils/handlers';
 import authRouter from './routes/auth.routes';
+import socketEvents from './utils/socket';
 
 const app = express();
+const server = http.createServer(app);
+const io = new Server(server, {
+    cors: {
+        origin: '*',
+    }
+})
+socketEvents(io);
+
 app.use(express.json());
 
 app.use(cors());
@@ -54,7 +65,8 @@ app.use('/api/messages', messageRouter);
 // The error handler
 app.use(apiErrorHandler);
 
+
 const port = process.env.PORT || 4;
-app.listen(port, () => {
+server.listen(port, () => {
     console.log(`Server is running on port ${port}`);
 });
